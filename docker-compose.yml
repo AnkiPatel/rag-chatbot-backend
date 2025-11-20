@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  rag-chatbot-api:
+    build: .
+    container_name: rag-chatbot-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+    env_file:
+      - .env
+    volumes:
+      # Persist vector database and PDFs
+      - ./data/pdfs:/app/data/pdfs
+      - ./data/vector_db:/app/data/vector_db
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: rag-chatbot-network
